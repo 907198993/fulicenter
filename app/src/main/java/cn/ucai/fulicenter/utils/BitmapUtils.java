@@ -11,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public final class BitmapUtils {
-
 	/**
 	 * 按指定尺寸转换图片
 	 * @param data：图片的二进制数据
