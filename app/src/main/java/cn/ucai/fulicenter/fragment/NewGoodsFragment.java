@@ -20,9 +20,7 @@ import cn.ucai.fulicenter.R;
 import cn.ucai.fulicenter.activity.MainActivity;
 import cn.ucai.fulicenter.adapter.NewGoodsAdapter;
 import cn.ucai.fulicenter.bean.NewGoodBean;
-import cn.ucai.fulicenter.utils.I;
 import cn.ucai.fulicenter.utils.ImageLoader;
-import cn.ucai.fulicenter.utils.L;
 import cn.ucai.fulicenter.utils.NetDao;
 import cn.ucai.fulicenter.utils.OkHttpUtils;
 
@@ -41,9 +39,7 @@ public class NewGoodsFragment extends Fragment {
     NewGoodsAdapter mNewGoodsAdapter;
     ArrayList<NewGoodBean> list;
     MainActivity mContext;
-
     int page_id = 1;
-
     final int PULL_UP_ACTION = 0;
     final int PULL_DOWN_ACTION = 1;
     final int BENGIE_ACTION = 2;
@@ -56,7 +52,7 @@ public class NewGoodsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mContext = (MainActivity) getActivity();
+        mContext = (MainActivity) getContext();
         view = inflater.inflate(R.layout.fragment_new_good, container, false);
         ButterKnife.bind(this, view);
         initView();
@@ -83,7 +79,7 @@ public class NewGoodsFragment extends Fragment {
                 R.color.red,
                 R.color.google_yellow,
                 R.color.white);
-        swipeRefresh.setSize(SwipeRefreshLayout.LARGE);
+        swipeRefresh.setSize(SwipeRefreshLayout.DEFAULT);
         //swipeRefreshLayout.setPadding(20, 20, 20, 20);
         // swipeRefreshLayout.setProgressViewOffset(true, 100, 200);
         // swipeRefreshLayout.setDistanceToTriggerSync(50);

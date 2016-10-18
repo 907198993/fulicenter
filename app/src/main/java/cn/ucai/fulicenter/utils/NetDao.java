@@ -2,6 +2,7 @@ package cn.ucai.fulicenter.utils;
 
 import android.content.Context;
 
+import cn.ucai.fulicenter.bean.GoodDetailsBean;
 import cn.ucai.fulicenter.bean.NewGoodBean;
 
 /**
@@ -17,6 +18,16 @@ public class NetDao {
                 .addParam(I.PAGE_ID, pageId + "")
                 .addParam(I.PAGE_SIZE,String.valueOf(I.PAGE_SIZE_DEFAULT))
                 .targetClass(NewGoodBean[].class)
+                .execute(listener);
+    }
+
+    public static void  downloadGoodsDetail(Context context,
+                                         int goodsId,
+                                         OkHttpUtils.OnCompleteListener<GoodDetailsBean> listener){
+        OkHttpUtils utils = new OkHttpUtils(context);
+        utils.setRequestUrl(I.REQUEST_FIND_GOOD_DETAILS)
+                .addParam(I.GoodsDetails.KEY_GOODS_ID,String.valueOf(goodsId))
+                .targetClass(GoodDetailsBean.class)
                 .execute(listener);
     }
 }
