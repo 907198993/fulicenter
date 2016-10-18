@@ -94,7 +94,6 @@ public class NewGoodsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         //下载图片
         ImageLoader.build(I.SERVER_ROOT+I.REQUEST_DOWNLOAD_IMAGE)
                 .addParam(I.Boutique.IMAGE_URL,newGoodsBean.getGoodsThumb())
-                .defaultPicture(R.mipmap.goods_thumb)
                 .imageView(newGoodsViewHolder.netivPhoto)
                 .width(160)
                 .height(240)

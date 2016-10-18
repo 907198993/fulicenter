@@ -23,6 +23,7 @@ import cn.ucai.fulicenter.bean.NewGoodBean;
 import cn.ucai.fulicenter.utils.I;
 import cn.ucai.fulicenter.utils.ImageLoader;
 import cn.ucai.fulicenter.utils.L;
+import cn.ucai.fulicenter.utils.NetDao;
 import cn.ucai.fulicenter.utils.OkHttpUtils;
 
 /**
@@ -30,8 +31,6 @@ import cn.ucai.fulicenter.utils.OkHttpUtils;
  */
 public class NewGoodsFragment extends Fragment {
     View view;
-    @Bind(R.id.tv_hint)
-    TextView tvHint;
     @Bind(R.id.recyclerview_newgoods)
     RecyclerView recyclerviewNewgoods;
     @Bind(R.id.swipe_Refresh)
@@ -57,7 +56,6 @@ public class NewGoodsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         mContext = (MainActivity) getActivity();
         view = inflater.inflate(R.layout.fragment_new_good, container, false);
         ButterKnife.bind(this, view);
@@ -80,12 +78,23 @@ public class NewGoodsFragment extends Fragment {
 
     //设置监听事件
     private void setListener() {
+        swipeRefresh.setColorSchemeResources(
+                R.color.blue,
+                R.color.red,
+                R.color.google_yellow,
+                R.color.white);
+        swipeRefresh.setSize(SwipeRefreshLayout.LARGE);
+        //swipeRefreshLayout.setPadding(20, 20, 20, 20);
+        // swipeRefreshLayout.setProgressViewOffset(true, 100, 200);
+        // swipeRefreshLayout.setDistanceToTriggerSync(50);
+        //  swipeRefreshLayout.setProgressViewEndTarget(true, 100);
+        swipeRefresh.setProgressViewEndTarget(true, 100);
+
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 swipeRefresh.setEnabled(true);
-                swipeRefresh.setRefreshing(true);
-                tvHint.setVisibility(View.VISIBLE);
+                swipeRefresh.setRefreshing(false);
                 page_id = 1;
                 downData(page_id, PULL_DOWN_ACTION);
             }
@@ -118,45 +127,39 @@ public class NewGoodsFragment extends Fragment {
 
     private void downData(int page_id, final int action) {
         final OkHttpUtils<NewGoodBean[]> utils = new OkHttpUtils<>(getContext());
+        NetDao.downloadNewGoods(mContext, page_id, new OkHttpUtils.OnCompleteListener<NewGoodBean[]>() {
+            @Override
+            public void onSuccess(NewGoodBean[] result) {
 
-        utils.setRequestUrl(I.REQUEST_FIND_NEW_BOUTIQUE_GOODS)
-                .addParam(I.GoodsDetails.KEY_CAT_ID, 0 + "")
-                .addParam(I.PAGE_ID, page_id + "")
-                .addParam(I.PAGE_SIZE, String.valueOf(I.PAGE_SIZE_DEFAULT) + "")
-                .targetClass(NewGoodBean[].class)
-                .execute(new OkHttpUtils.OnCompleteListener<NewGoodBean[]>() {
-                    @Override
-                    public void onSuccess(NewGoodBean[] result) {
-
-                        if (result != null && result.length != 0) {
-                            list = utils.array2List(result);
-                            switch (action) {
-                                case BENGIE_ACTION:
-                                    mNewGoodsAdapter.initOrRefreshList(list);
-                                    break;
-                                case PULL_DOWN_ACTION:
-                                    swipeRefresh.setRefreshing(false);
-                                    tvHint.setVisibility(View.GONE);
-                                    mNewGoodsAdapter.setMore(true);
-                                    mNewGoodsAdapter.initOrRefreshList(list);
-                                    ImageLoader.release();
-                                    break;
-                                case PULL_UP_ACTION:
-                                    mNewGoodsAdapter.addList(list);
-                                    break;
-                            }
-
-                        } else {
-                            mNewGoodsAdapter.setMore(false);
-                            mNewGoodsAdapter.notifyDataSetChanged();
-                        }
+                if (result != null && result.length != 0) {
+                    list = utils.array2List(result);
+                    switch (action) {
+                        case BENGIE_ACTION:
+                            mNewGoodsAdapter.initOrRefreshList(list);
+                            break;
+                        case PULL_DOWN_ACTION:
+                            swipeRefresh.setRefreshing(false);
+                            mNewGoodsAdapter.setMore(true);
+                            mNewGoodsAdapter.initOrRefreshList(list);
+                            ImageLoader.release();
+                            break;
+                        case PULL_UP_ACTION:
+                            mNewGoodsAdapter.addList(list);
+                            break;
                     }
 
-                    @Override
-                    public void onError(String error) {
-                        L.e("下载失败了");
-                    }
-                });
+                } else {
+                    mNewGoodsAdapter.setMore(false);
+                    mNewGoodsAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
+
 
     }
 
