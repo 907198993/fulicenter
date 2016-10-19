@@ -1,12 +1,10 @@
 package cn.ucai.fulicenter.fragment;
 
-import android.app.Fragment;
-import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,159 +12,141 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.ucai.fulicenter.I;
 import cn.ucai.fulicenter.R;
 import cn.ucai.fulicenter.activity.MainActivity;
-import cn.ucai.fulicenter.adapter.NewGoodsAdapter;
-import cn.ucai.fulicenter.bean.NewGoodBean;
-import cn.ucai.fulicenter.utils.ImageLoader;
-import cn.ucai.fulicenter.utils.NetDao;
-import cn.ucai.fulicenter.utils.OkHttpUtils;
+import cn.ucai.fulicenter.adapter.GoodsAdapter;
+import cn.ucai.fulicenter.bean.NewGoodsBean;
+import cn.ucai.fulicenter.net.NetDao;
+import cn.ucai.fulicenter.net.OkHttpUtils;
+import cn.ucai.fulicenter.utils.CommonUtils;
+import cn.ucai.fulicenter.utils.ConvertUtils;
+import cn.ucai.fulicenter.utils.L;
+import cn.ucai.fulicenter.view.SpaceItemDecoration;
 
-/**
- * Created by Administrator on 2016/10/14.
- */
-public class NewGoodsFragment extends Fragment {
-    View view;
-    @Bind(R.id.recyclerview_newgoods)
-    RecyclerView recyclerviewNewgoods;
-    @Bind(R.id.swipe_Refresh)
-    SwipeRefreshLayout swipeRefresh;
 
-    GridLayoutManager mGridaLayoutManager;
-    StaggeredGridLayoutManager mStaggeredGridLayoutManager;
-    NewGoodsAdapter mNewGoodsAdapter;
-    ArrayList<NewGoodBean> list;
+public class NewGoodsFragment extends BaseFragment {
+    @BindView(R.id.tv_refresh)
+    TextView mTvRefresh;
+    @BindView(R.id.rv)
+    RecyclerView mRv;
+    @BindView(R.id.srl)
+    SwipeRefreshLayout mSrl;
+
     MainActivity mContext;
-    int page_id = 1;
-    final int PULL_UP_ACTION = 0;
-    final int PULL_DOWN_ACTION = 1;
-    final int BENGIE_ACTION = 2;
+    GoodsAdapter mAdapter;
+    ArrayList<NewGoodsBean> mList;
+    int pageId = 1;
+    GridLayoutManager glm;
 
-    int mNewState;
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-    public NewGoodsFragment() {
+        L.e("NewGoodsFragment.onCreateView");
+        View layout = inflater.inflate(R.layout.fragment_newgoods, container, false);
+        ButterKnife.bind(this, layout);
+        mContext = (MainActivity) getContext();
+        mList = new ArrayList<>();
+        mAdapter = new GoodsAdapter(mContext,mList);
+        super.onCreateView(inflater,container,savedInstanceState);
+        return layout;
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        mContext = (MainActivity) getContext();
-        view = inflater.inflate(R.layout.fragment_new_good, container, false);
-        ButterKnife.bind(this, view);
-        initView();
-        initDate();
-        setListener();
-        setManagerSpan();
-        return view;
-
+    protected void setListener() {
+        setPullUpListener();
+        setPullDownListener();
     }
 
-    private void setManagerSpan() {
-        mGridaLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override
-            public int getSpanSize(int position) {
-                return position == mNewGoodsAdapter.getItemCount() - 1 ? 2 : 1;
-            }
-        });
-    }
-
-    //设置监听事件
-    private void setListener() {
-        swipeRefresh.setColorSchemeResources(
-                R.color.blue,
-                R.color.red,
-                R.color.google_yellow,
-                R.color.white);
-        swipeRefresh.setSize(SwipeRefreshLayout.DEFAULT);
-        //swipeRefreshLayout.setPadding(20, 20, 20, 20);
-        // swipeRefreshLayout.setProgressViewOffset(true, 100, 200);
-        // swipeRefreshLayout.setDistanceToTriggerSync(50);
-        //  swipeRefreshLayout.setProgressViewEndTarget(true, 100);
-        swipeRefresh.setProgressViewEndTarget(true, 100);
-
-        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+    private void setPullDownListener() {
+        mSrl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                swipeRefresh.setEnabled(true);
-                swipeRefresh.setRefreshing(false);
-                page_id = 1;
-                downData(page_id, PULL_DOWN_ACTION);
-            }
-        });
-        recyclerviewNewgoods.setOnScrollListener(new RecyclerView.OnScrollListener() {
-
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                mNewState = newState;
-                int lastPosition = mGridaLayoutManager.findLastVisibleItemPosition();
-
-                if (lastPosition >= mNewGoodsAdapter.getItemCount() - 1 && newState == RecyclerView.SCROLL_STATE_IDLE
-                        && mNewGoodsAdapter.isMore()) {
-                    page_id++;
-                    downData(page_id, PULL_UP_ACTION);
-                }
-                super.onScrollStateChanged(recyclerView, newState);
+                mSrl.setRefreshing(true);
+                mTvRefresh.setVisibility(View.VISIBLE);
+                pageId = 1;
+                downloadNewGoods(I.ACTION_PULL_DOWN);
             }
         });
     }
 
-    private void initView() {
-        list = new ArrayList<>();
-        mGridaLayoutManager = new GridLayoutManager(mContext, 2, GridLayoutManager.VERTICAL, false);
-        mStaggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        mNewGoodsAdapter = new NewGoodsAdapter(mContext, list);
-        recyclerviewNewgoods.setLayoutManager(mGridaLayoutManager);
-        recyclerviewNewgoods.setAdapter(mNewGoodsAdapter);
-    }
-
-    private void downData(int page_id, final int action) {
-        final OkHttpUtils<NewGoodBean[]> utils = new OkHttpUtils<>(getContext());
-        NetDao.downloadNewGoods(mContext, page_id, new OkHttpUtils.OnCompleteListener<NewGoodBean[]>() {
+    private void downloadNewGoods(final int action) {
+        NetDao.downloadNewGoods(mContext,I.CAT_ID, pageId, new OkHttpUtils.OnCompleteListener<NewGoodsBean[]>() {
             @Override
-            public void onSuccess(NewGoodBean[] result) {
-
-                if (result != null && result.length != 0) {
-                    list = utils.array2List(result);
-                    switch (action) {
-                        case BENGIE_ACTION:
-                            mNewGoodsAdapter.initOrRefreshList(list);
-                            break;
-                        case PULL_DOWN_ACTION:
-                            swipeRefresh.setRefreshing(false);
-                            mNewGoodsAdapter.setMore(true);
-                            mNewGoodsAdapter.initOrRefreshList(list);
-                            ImageLoader.release();
-                            break;
-                        case PULL_UP_ACTION:
-                            mNewGoodsAdapter.addList(list);
-                            break;
+            public void onSuccess(NewGoodsBean[] result) {
+                mSrl.setRefreshing(false);
+                mTvRefresh.setVisibility(View.GONE);
+                mAdapter.setMore(true);
+                L.e("result="+result);
+                if(result!=null && result.length>0){
+                    ArrayList<NewGoodsBean> list = ConvertUtils.array2List(result);
+                    if(action==I.ACTION_DOWNLOAD || action == I.ACTION_PULL_DOWN) {
+                        mAdapter.initData(list);
+                    }else{
+                        mAdapter.addData(list);
                     }
-
-                } else {
-                    mNewGoodsAdapter.setMore(false);
-                    mNewGoodsAdapter.notifyDataSetChanged();
+                    if(list.size()<I.PAGE_SIZE_DEFAULT){
+                        mAdapter.setMore(false);
+                    }
+                }else{
+                    mAdapter.setMore(false);
                 }
             }
 
             @Override
             public void onError(String error) {
-
+                mSrl.setRefreshing(false);
+                mTvRefresh.setVisibility(View.GONE);
+                mAdapter.setMore(false);
+                CommonUtils.showShortToast(error);
+                L.e("error:"+error);
             }
         });
-
-
     }
 
-    //初始化数据
-    private void initDate() {
-        downData(1, BENGIE_ACTION);
+    private void setPullUpListener() {
+        mRv.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                int lastPosition = glm.findLastVisibleItemPosition();
+                if(newState == RecyclerView.SCROLL_STATE_IDLE
+                        && lastPosition == mAdapter.getItemCount()-1
+                        && mAdapter.isMore()){
+                    pageId++;
+                    downloadNewGoods(I.ACTION_PULL_UP);
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int firstPosition = glm.findFirstVisibleItemPosition();
+                mSrl.setEnabled(firstPosition==0);
+            }
+        });
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
+    protected void initData() {
+        downloadNewGoods(I.ACTION_DOWNLOAD);
+    }
+
+    @Override
+    protected void initView() {
+        mSrl.setColorSchemeColors(
+                getResources().getColor(R.color.google_blue),
+                getResources().getColor(R.color.google_green),
+                getResources().getColor(R.color.google_red),
+                getResources().getColor(R.color.google_yellow)
+        );
+        glm = new GridLayoutManager(mContext, I.COLUM_NUM);
+        mRv.setLayoutManager(glm);
+        mRv.setHasFixedSize(true);
+        mRv.setAdapter(mAdapter);
+        mRv.addItemDecoration(new SpaceItemDecoration(12));
     }
 }

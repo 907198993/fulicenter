@@ -2,17 +2,14 @@ package cn.ucai.fulicenter.bean;
 
 import java.io.Serializable;
 
-/**
- * Created by Administrator on 2016/6/13.
- */
-public class ColorBean implements Serializable{
+public class ColorBean implements Serializable {
 
     /**
      * catId : 262
      * colorId : 1
      * colorName : 灰色
      * colorCode : #959595
-     * colorImg : http:121.197.1.20/images/201309/1380064809234134935.jpg
+     * colorImg : 121.197.1.20/images/201309/1380064809234134935.jpg
      */
 
     private int catId;

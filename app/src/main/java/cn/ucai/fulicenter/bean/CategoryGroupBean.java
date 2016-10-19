@@ -2,10 +2,7 @@ package cn.ucai.fulicenter.bean;
 
 import java.io.Serializable;
 
-/**
- * Created by Administrator on 2016/6/13.
- */
-public class CategoryGroupBean implements Serializable{
+public class CategoryGroupBean implements Serializable {
 
     /**
      * id : 334
@@ -39,14 +36,5 @@ public class CategoryGroupBean implements Serializable{
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    @Override
-    public String toString() {
-        return "CategoryGroupBean{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
-                '}';
     }
 }

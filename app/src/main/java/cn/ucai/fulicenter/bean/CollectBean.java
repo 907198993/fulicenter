@@ -2,10 +2,7 @@ package cn.ucai.fulicenter.bean;
 
 import java.io.Serializable;
 
-/**
- * Created by Administrator on 2016/6/13.
- */
-public class CollectBean implements Serializable{
+public class CollectBean implements Serializable {
 
     /**
      * id : 7672
@@ -26,19 +23,6 @@ public class CollectBean implements Serializable{
     private String goodsThumb;
     private String goodsImg;
     private long addTime;
-
-    public CollectBean() {
-    }
-
-    public CollectBean(String userName, int goodsId, String goodsName, String goodsEnglishName, String goodsThumb, String goodsImg, long addTime) {
-        this.userName = userName;
-        this.goodsId = goodsId;
-        this.goodsName = goodsName;
-        this.goodsEnglishName = goodsEnglishName;
-        this.goodsThumb = goodsThumb;
-        this.goodsImg = goodsImg;
-        this.addTime = addTime;
-    }
 
     public int getId() {
         return id;
