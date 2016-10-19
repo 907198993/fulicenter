@@ -90,6 +90,7 @@ public class Good_DetailActivity extends AppCompatActivity {
     }
 
     public void showGoodsDetail(GoodDetailsBean detailsBean){
+
         mtv_English_Name.setText(detailsBean.getGoodsEnglishName());
         mtv_Chinese_Name.setText(detailsBean.getGoodsName());
         mtv_Price.setText(detailsBean.getCurrencyPrice());
