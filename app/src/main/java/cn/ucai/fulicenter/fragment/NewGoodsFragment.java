@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import butterknife.BindView;
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import cn.ucai.fulicenter.I;
 import cn.ucai.fulicenter.R;
@@ -28,11 +28,11 @@ import cn.ucai.fulicenter.view.SpaceItemDecoration;
 
 
 public class NewGoodsFragment extends BaseFragment {
-    @BindView(R.id.tv_refresh)
+    @Bind(R.id.tv_refresh)
     TextView mTvRefresh;
-    @BindView(R.id.rv)
+    @Bind(R.id.rv)
     RecyclerView mRv;
-    @BindView(R.id.srl)
+    @Bind(R.id.srl)
     SwipeRefreshLayout mSrl;
 
     MainActivity mContext;

@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.ucai.fulicenter.I;
@@ -103,13 +103,13 @@ public class GoodsAdapter extends Adapter {
     }
 
     class GoodsViewHolder extends ViewHolder{
-        @BindView(R.id.ivGoodsThumb)
+        @Bind(R.id.ivGoodsThumb)
         ImageView mIvGoodsThumb;
-        @BindView(R.id.tvGoodsName)
+        @Bind(R.id.tvGoodsName)
         TextView mTvGoodsName;
-        @BindView(R.id.tvGoodsPrice)
+        @Bind(R.id.tvGoodsPrice)
         TextView mTvGoodsPrice;
-        @BindView(R.id.layout_goods)
+        @Bind(R.id.layout_goods)
         LinearLayout mLayoutGoods;
 
         GoodsViewHolder(View view) {

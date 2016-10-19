@@ -5,7 +5,7 @@ import android.webkit.WebView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import butterknife.BindView;
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.ucai.fulicenter.I;
@@ -22,21 +22,21 @@ import cn.ucai.fulicenter.view.SlideAutoLoopView;
 
 public class GoodsDetailActivity extends BaseActivity {
 
-    @BindView(R.id.backClickArea)
+    @Bind(R.id.backClickArea)
     LinearLayout mBackClickArea;
-    @BindView(R.id.tv_good_name_english)
+    @Bind(R.id.tv_good_name_english)
     TextView mTvGoodNameEnglish;
-    @BindView(R.id.tv_good_name)
+    @Bind(R.id.tv_good_name)
     TextView mTvGoodName;
-    @BindView(R.id.tv_good_price_shop)
+    @Bind(R.id.tv_good_price_shop)
     TextView mTvGoodPriceShop;
-    @BindView(R.id.tv_good_price_current)
+    @Bind(R.id.tv_good_price_current)
     TextView mTvGoodPriceCurrent;
-    @BindView(R.id.salv)
+    @Bind(R.id.salv)
     SlideAutoLoopView mSalv;
-    @BindView(R.id.indicator)
+    @Bind(R.id.indicator)
     FlowIndicator mIndicator;
-    @BindView(R.id.wv_good_brief)
+    @Bind(R.id.wv_good_brief)
     WebView mWvGoodBrief;
 
     int goodsId;

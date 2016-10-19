@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import butterknife.BindView;
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import cn.ucai.fulicenter.R;
 import cn.ucai.fulicenter.fragment.BoutiqueFragment;
@@ -16,17 +16,17 @@ import cn.ucai.fulicenter.utils.L;
 
 public class MainActivity extends BaseActivity {
 
-    @BindView(R.id.layout_new_good)
+    @Bind(R.id.layout_new_good)
     RadioButton mLayoutNewGood;
-    @BindView(R.id.layout_boutique)
+    @Bind(R.id.layout_boutique)
     RadioButton mLayoutBoutique;
-    @BindView(R.id.layout_category)
+    @Bind(R.id.layout_category)
     RadioButton mLayoutCategory;
-    @BindView(R.id.layout_cart)
+    @Bind(R.id.layout_cart)
     RadioButton mLayoutCart;
-    @BindView(R.id.tvCartHint)
+    @Bind(R.id.tvCartHint)
     TextView mTvCartHint;
-    @BindView(R.id.layout_personal_center)
+    @Bind(R.id.layout_personal_center)
     RadioButton mLayoutPersonalCenter;
 
     int index;

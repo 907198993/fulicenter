@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import butterknife.BindView;
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.ucai.fulicenter.R;
@@ -62,15 +62,15 @@ public class BoutiqueAdapter extends Adapter<BoutiqueAdapter.BoutiqueViewHolder>
     }
 
     class BoutiqueViewHolder extends ViewHolder {
-        @BindView(R.id.ivBoutiqueImg)
+        @Bind(R.id.ivBoutiqueImg)
         ImageView mIvBoutiqueImg;
-        @BindView(R.id.tvBoutiqueTitle)
+        @Bind(R.id.tvBoutiqueTitle)
         TextView mTvBoutiqueTitle;
-        @BindView(R.id.tvBoutiqueName)
+        @Bind(R.id.tvBoutiqueName)
         TextView mTvBoutiqueName;
-        @BindView(R.id.tvBoutiqueDescription)
+        @Bind(R.id.tvBoutiqueDescription)
         TextView mTvBoutiqueDescription;
-        @BindView(R.id.layout_boutique_item)
+        @Bind(R.id.layout_boutique_item)
         RelativeLayout mLayoutBoutiqueItem;
 
         BoutiqueViewHolder(View view) {
