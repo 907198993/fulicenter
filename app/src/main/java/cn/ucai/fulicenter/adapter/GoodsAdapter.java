@@ -10,6 +10,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.Bind;
@@ -30,8 +32,52 @@ public class GoodsAdapter extends Adapter {
     Context mContext;
     List<NewGoodsBean> mList;
     boolean isMore;
+    int sortBy;
+    public void setSortBy(int sortBy) {
+        this.sortBy = sortBy;
+        sort(sortBy);
+        notifyDataSetChanged();
+    }
 
-    public GoodsAdapter(Context context, List<NewGoodsBean> list) {
+    private void sort(final int sortBy) {
+        Collections.sort(mList, new Comparator<NewGoodsBean>() {
+            @Override
+            public int compare(NewGoodsBean g1, NewGoodsBean g2) {
+                int result = 0;
+                switch (sortBy) {
+                    case I.SORT_BY_ADDTIME_ASC:
+                        result = (int) (g1.getAddTime() - g2.getAddTime());
+                        break;
+                    case I.SORT_BY_ADDTIME_DESC:
+                        result = (int) (g2.getAddTime() - g1.getAddTime());
+                        break;
+                    case I.SORT_BY_PRICE_ASC:
+                    {
+                        int p1 = convertPrice(g1.getCurrencyPrice());
+                        int p2 = convertPrice(g2.getCurrencyPrice());
+                        result = p1 - p2;
+                    }
+                    break;
+                    case I.SORT_BY_PRICE_DESC:
+                    {
+                        int p1 = convertPrice(g1.getCurrencyPrice());
+                        int p2 = convertPrice(g2.getCurrencyPrice());
+                        result = p1 - p2;
+                    }
+                    break;
+                }
+                return result;
+            }
+
+            private int convertPrice(String price) {
+                price = price.substring(price.indexOf("￥") + 1);
+                int p1 = Integer.parseInt(price);
+                return p1;
+            }
+        });
+    }
+    public GoodsAdapter(Context context, List<NewGoodsBean> list, int sortBy) {
+        this.sortBy = sortBy;
         mContext = context;
         mList = new ArrayList<>();
         mList.addAll(list);
