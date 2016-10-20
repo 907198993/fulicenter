@@ -32,55 +32,18 @@ public class GoodsAdapter extends Adapter {
     Context mContext;
     List<NewGoodsBean> mList;
     boolean isMore;
-    int sortBy;
-    public void setSortBy(int sortBy) {
-        this.sortBy = sortBy;
-        sort(sortBy);
-        notifyDataSetChanged();
-    }
+    int soryBy = I.SORT_BY_ADDTIME_DESC;
 
-    private void sort(final int sortBy) {
-        Collections.sort(mList, new Comparator<NewGoodsBean>() {
-            @Override
-            public int compare(NewGoodsBean g1, NewGoodsBean g2) {
-                int result = 0;
-                switch (sortBy) {
-                    case I.SORT_BY_ADDTIME_ASC:
-                        result = (int) (g1.getAddTime() - g2.getAddTime());
-                        break;
-                    case I.SORT_BY_ADDTIME_DESC:
-                        result = (int) (g2.getAddTime() - g1.getAddTime());
-                        break;
-                    case I.SORT_BY_PRICE_ASC:
-                    {
-                        int p1 = convertPrice(g1.getCurrencyPrice());
-                        int p2 = convertPrice(g2.getCurrencyPrice());
-                        result = p1 - p2;
-                    }
-                    break;
-                    case I.SORT_BY_PRICE_DESC:
-                    {
-                        int p1 = convertPrice(g1.getCurrencyPrice());
-                        int p2 = convertPrice(g2.getCurrencyPrice());
-                        result = p1 - p2;
-                    }
-                    break;
-                }
-                return result;
-            }
-
-            private int convertPrice(String price) {
-                price = price.substring(price.indexOf("￥") + 1);
-                int p1 = Integer.parseInt(price);
-                return p1;
-            }
-        });
-    }
-    public GoodsAdapter(Context context, List<NewGoodsBean> list, int sortBy) {
-        this.sortBy = sortBy;
+    public GoodsAdapter(Context context, List<NewGoodsBean> list) {
         mContext = context;
         mList = new ArrayList<>();
         mList.addAll(list);
+    }
+
+    public void setSoryBy(int soryBy) {
+        this.soryBy = soryBy;
+        sortBy();
+        notifyDataSetChanged();
     }
 
     public boolean isMore() {
@@ -167,6 +130,34 @@ public class GoodsAdapter extends Adapter {
             int goodsId = (int) mLayoutGoods.getTag();
             MFGT.gotoGoodsDetailsActivity(mContext,goodsId);
         }
+    }
+
+    private void sortBy(){
+        Collections.sort(mList, new Comparator<NewGoodsBean>() {
+            @Override
+            public int compare(NewGoodsBean left, NewGoodsBean right) {
+                int result=0;
+                switch (soryBy){
+                    case I.SORT_BY_ADDTIME_ASC:
+                        result= (int) (Long.valueOf(left.getAddTime())-Long.valueOf(right.getAddTime()));
+                        break;
+                    case I.SORT_BY_ADDTIME_DESC:
+                        result= (int) (Long.valueOf(right.getAddTime())-Long.valueOf(left.getAddTime()));
+                        break;
+                    case I.SORT_BY_PRICE_ASC:
+                        result = getPrice(left.getCurrencyPrice())-getPrice(right.getCurrencyPrice());
+                        break;
+                    case I.SORT_BY_PRICE_DESC:
+                        result = getPrice(right.getCurrencyPrice())-getPrice(left.getCurrencyPrice());
+                        break;
+                }
+                return result;
+            }
+            private int getPrice(String price){
+                price = price.substring(price.indexOf("￥")+1);
+                return Integer.valueOf(price);
+            }
+        });
     }
 
 }

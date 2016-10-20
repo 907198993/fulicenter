@@ -53,7 +53,7 @@ public class BoutiqueChildActivity extends BaseActivity {
         }
         mContext = this;
         mList = new ArrayList<>();
-        mAdapter = new GoodsAdapter(mContext,mList,0);
+        mAdapter = new GoodsAdapter(mContext,mList);
         super.onCreate(savedInstanceState);
     }
 
