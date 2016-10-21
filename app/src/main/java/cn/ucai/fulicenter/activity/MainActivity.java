@@ -60,6 +60,7 @@ public class MainActivity extends BaseActivity {
                 .add(R.id.fragment_container,mBoutiqueFragment)
                 .add(R.id.fragment_container,mCategoryFragment)
                 .hide(mBoutiqueFragment)
+                .hide(mCategoryFragment)
                 .show(mNewGoodsFragment)
                 .commit();
     }

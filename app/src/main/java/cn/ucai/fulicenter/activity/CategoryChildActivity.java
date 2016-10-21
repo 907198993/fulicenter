@@ -1,10 +1,12 @@
 package cn.ucai.fulicenter.activity;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -15,7 +17,7 @@ import butterknife.OnClick;
 import cn.ucai.fulicenter.I;
 import cn.ucai.fulicenter.R;
 import cn.ucai.fulicenter.adapter.GoodsAdapter;
-import cn.ucai.fulicenter.bean.BoutiqueBean;
+import cn.ucai.fulicenter.bean.CategoryChildBean;
 import cn.ucai.fulicenter.bean.NewGoodsBean;
 import cn.ucai.fulicenter.net.NetDao;
 import cn.ucai.fulicenter.net.OkHttpUtils;
@@ -23,12 +25,11 @@ import cn.ucai.fulicenter.utils.CommonUtils;
 import cn.ucai.fulicenter.utils.ConvertUtils;
 import cn.ucai.fulicenter.utils.L;
 import cn.ucai.fulicenter.utils.MFGT;
+import cn.ucai.fulicenter.view.CatChildFilterButton;
 import cn.ucai.fulicenter.view.SpaceItemDecoration;
 
-public class BoutiqueChildActivity extends BaseActivity {
+public class CategoryChildActivity extends BaseActivity {
 
-    @Bind(R.id.tv_common_title)
-    TextView mTvCommonTitle;
     @Bind(R.id.tv_refresh)
     TextView mTvRefresh;
     @Bind(R.id.rv)
@@ -36,24 +37,37 @@ public class BoutiqueChildActivity extends BaseActivity {
     @Bind(R.id.srl)
     SwipeRefreshLayout mSrl;
 
-    BoutiqueChildActivity mContext;
+    CategoryChildActivity mContext;
     GoodsAdapter mAdapter;
     ArrayList<NewGoodsBean> mList;
     int pageId = 1;
     GridLayoutManager glm;
-    BoutiqueBean boutique;
+    int catId;
+    @Bind(R.id.btn_sort_price)
+    Button mBtnSortPrice;
+    @Bind(R.id.btn_sort_addtime)
+    Button mBtnSortAddtime;
+    boolean addTimeAsc = false;
+    boolean priceAsc = false;
+    int sortBy = I.SORT_BY_ADDTIME_DESC;
+    @Bind(R.id.btnCatChildFilter)
+    CatChildFilterButton mBtnCatChildFilter;
+    String groupName;
+    ArrayList<CategoryChildBean> mChildList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setContentView(R.layout.activity_boutique_child);
+        setContentView(R.layout.activity_category_child);
         ButterKnife.bind(this);
-        boutique = (BoutiqueBean) getIntent().getSerializableExtra(I.Boutique.CAT_ID);
-        if(boutique == null){
-            finish();
-        }
         mContext = this;
         mList = new ArrayList<>();
-        mAdapter = new GoodsAdapter(mContext,mList);
+        mAdapter = new GoodsAdapter(mContext, mList);
+        catId = getIntent().getIntExtra(I.CategoryChild.CAT_ID, 0);
+        if (catId == 0) {
+            finish();
+        }
+        groupName = getIntent().getStringExtra(I.CategoryGroup.NAME);
+        mChildList = (ArrayList<CategoryChildBean>) getIntent().getSerializableExtra(I.CategoryChild.ID);
         super.onCreate(savedInstanceState);
     }
 
@@ -70,9 +84,8 @@ public class BoutiqueChildActivity extends BaseActivity {
         mRv.setHasFixedSize(true);
         mRv.setAdapter(mAdapter);
         mRv.addItemDecoration(new SpaceItemDecoration(12));
-        mTvCommonTitle.setText(boutique.getTitle());
+        mBtnCatChildFilter.setText(groupName);
     }
-
 
     @Override
     protected void setListener() {
@@ -87,30 +100,30 @@ public class BoutiqueChildActivity extends BaseActivity {
                 mSrl.setRefreshing(true);
                 mTvRefresh.setVisibility(View.VISIBLE);
                 pageId = 1;
-                downloadNewGoods(I.ACTION_PULL_DOWN);
+                downloadCategoryGoods(I.ACTION_PULL_DOWN);
             }
         });
     }
 
-    private void downloadNewGoods(final int action) {
-        NetDao.downloadNewGoods(mContext,boutique.getId(), pageId, new OkHttpUtils.OnCompleteListener<NewGoodsBean[]>() {
+    private void downloadCategoryGoods(final int action) {
+        NetDao.downloadCategoryGoods(mContext, catId, pageId, new OkHttpUtils.OnCompleteListener<NewGoodsBean[]>() {
             @Override
             public void onSuccess(NewGoodsBean[] result) {
                 mSrl.setRefreshing(false);
                 mTvRefresh.setVisibility(View.GONE);
                 mAdapter.setMore(true);
-                L.e("result="+result);
-                if(result!=null && result.length>0){
+                L.e("result=" + result);
+                if (result != null && result.length > 0) {
                     ArrayList<NewGoodsBean> list = ConvertUtils.array2List(result);
-                    if(action==I.ACTION_DOWNLOAD || action == I.ACTION_PULL_DOWN) {
+                    if (action == I.ACTION_DOWNLOAD || action == I.ACTION_PULL_DOWN) {
                         mAdapter.initData(list);
-                    }else{
+                    } else {
                         mAdapter.addData(list);
                     }
-                    if(list.size()<I.PAGE_SIZE_DEFAULT){
+                    if (list.size() < I.PAGE_SIZE_DEFAULT) {
                         mAdapter.setMore(false);
                     }
-                }else{
+                } else {
                     mAdapter.setMore(false);
                 }
             }
@@ -121,7 +134,7 @@ public class BoutiqueChildActivity extends BaseActivity {
                 mTvRefresh.setVisibility(View.GONE);
                 mAdapter.setMore(false);
                 CommonUtils.showShortToast(error);
-                L.e("error:"+error);
+                L.e("error:" + error);
             }
         });
     }
@@ -132,11 +145,11 @@ public class BoutiqueChildActivity extends BaseActivity {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 int lastPosition = glm.findLastVisibleItemPosition();
-                if(newState == RecyclerView.SCROLL_STATE_IDLE
-                        && lastPosition == mAdapter.getItemCount()-1
-                        && mAdapter.isMore()){
+                if (newState == RecyclerView.SCROLL_STATE_IDLE
+                        && lastPosition == mAdapter.getItemCount() - 1
+                        && mAdapter.isMore()) {
                     pageId++;
-                    downloadNewGoods(I.ACTION_PULL_UP);
+                    downloadCategoryGoods(I.ACTION_PULL_UP);
                 }
             }
 
@@ -144,18 +157,51 @@ public class BoutiqueChildActivity extends BaseActivity {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int firstPosition = glm.findFirstVisibleItemPosition();
-                mSrl.setEnabled(firstPosition==0);
+                mSrl.setEnabled(firstPosition == 0);
             }
         });
     }
 
     @Override
     protected void initData() {
-        downloadNewGoods(I.ACTION_DOWNLOAD);
+        downloadCategoryGoods(I.ACTION_DOWNLOAD);
+        mBtnCatChildFilter.setOnCatFilterClickListener(groupName,mChildList);
     }
 
     @OnClick(R.id.backClickArea)
     public void onClick() {
         MFGT.finish(this);
+    }
+
+    @OnClick({R.id.btn_sort_price, R.id.btn_sort_addtime})
+    public void onClick(View view) {
+        Drawable right;
+        switch (view.getId()) {
+            case R.id.btn_sort_price:
+                if (priceAsc) {
+                    sortBy = I.SORT_BY_PRICE_ASC;
+                    right = getResources().getDrawable(R.mipmap.arrow_order_up);
+                } else {
+                    sortBy = I.SORT_BY_PRICE_DESC;
+                    right = getResources().getDrawable(R.mipmap.arrow_order_down);
+                }
+                right.setBounds(0, 0, right.getIntrinsicWidth(), right.getIntrinsicHeight());
+                mBtnSortPrice.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, right, null);
+                priceAsc = !priceAsc;
+                break;
+            case R.id.btn_sort_addtime:
+                if (addTimeAsc) {
+                    sortBy = I.SORT_BY_ADDTIME_ASC;
+                    right = getResources().getDrawable(R.mipmap.arrow_order_up);
+                } else {
+                    sortBy = I.SORT_BY_ADDTIME_DESC;
+                    right = getResources().getDrawable(R.mipmap.arrow_order_down);
+                }
+                right.setBounds(0, 0, right.getIntrinsicWidth(), right.getIntrinsicHeight());
+                mBtnSortAddtime.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, right, null);
+                addTimeAsc = !addTimeAsc;
+                break;
+        }
+        mAdapter.setSoryBy(sortBy);
     }
 }
