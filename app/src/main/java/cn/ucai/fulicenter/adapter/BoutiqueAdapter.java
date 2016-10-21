@@ -61,7 +61,7 @@ public class BoutiqueAdapter extends Adapter<BoutiqueAdapter.BoutiqueViewHolder>
         notifyDataSetChanged();
     }
 
-    class BoutiqueViewHolder extends ViewHolder {
+    class BoutiqueViewHolder extends ViewHolder{
         @Bind(R.id.ivBoutiqueImg)
         ImageView mIvBoutiqueImg;
         @Bind(R.id.tvBoutiqueTitle)
