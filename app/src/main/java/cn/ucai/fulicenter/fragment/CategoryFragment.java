@@ -10,7 +10,6 @@ import android.widget.ExpandableListView;
 import java.util.ArrayList;
 
 import butterknife.Bind;
-
 import butterknife.ButterKnife;
 import cn.ucai.fulicenter.R;
 import cn.ucai.fulicenter.activity.MainActivity;
